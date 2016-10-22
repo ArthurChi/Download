@@ -12,6 +12,17 @@ public class FileInfo {
     private int length;
     private int finished;
 
+    public FileInfo() {
+    }
+
+    public FileInfo(int id, String url, String fileName, int length, int finished) {
+        this.id = id;
+        this.url = url;
+        this.fileName = fileName;
+        this.length = length;
+        this.finished = finished;
+    }
+
     public int getId() {
         return id;
     }
@@ -50,5 +61,16 @@ public class FileInfo {
 
     public void setFinished(int finished) {
         this.finished = finished;
+    }
+
+    @Override
+    public String toString() {
+        return "FileInfo{" +
+                "id=" + id +
+                ", url='" + url + '\'' +
+                ", fileName='" + fileName + '\'' +
+                ", length=" + length +
+                ", finished=" + finished +
+                '}';
     }
 }
