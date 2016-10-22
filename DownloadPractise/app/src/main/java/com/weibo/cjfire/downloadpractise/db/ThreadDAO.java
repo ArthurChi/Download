@@ -11,8 +11,8 @@ import java.util.List;
 public interface ThreadDAO {
 
     public void insertThread(ThreadInfo threadInfo);
-    public void deleteThread(String url, int thread_id);
-    public void updateThreat(String url, int thread_id, int finished);
+    public void deleteThread(ThreadInfo threadInfo);
+    public void updateThreat(ThreadInfo threadInfo);
     public List<ThreadInfo>getThread(String url);
-    public boolean isExists(String url, int thread_id);
+    public boolean isExists(ThreadInfo threadInfo);
 }

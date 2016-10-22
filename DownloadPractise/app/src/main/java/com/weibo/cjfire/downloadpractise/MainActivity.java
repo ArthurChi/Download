@@ -1,6 +1,9 @@
 package com.weibo.cjfire.downloadpractise;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -27,6 +30,11 @@ public class MainActivity extends AppCompatActivity {
         mPbProgress = (ProgressBar) findViewById(R.id.progressBar);
         mBtStop = (Button) findViewById(R.id.stop);
         mBtStart = (Button) findViewById(R.id.download);
+        mPbProgress.setMax(100);
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(DownloadService.ACTION_UPDATE);
+        registerReceiver(mReceiver, filter);
 
         final FileInfo fileInfo = new FileInfo(0, "https://qd.myapp.com/myapp/qqteam/AndroidQQ/mobileqq_android.apk", "QQ.apk", 0, 0);
 
@@ -50,4 +58,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mReceiver);
+    }
+
+    BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            if (DownloadService.ACTION_UPDATE.equals(intent.getAction())) {
+                int finished = intent.getIntExtra("finished", 0);
+                mPbProgress.setProgress(finished);
+            }
+        }
+    };
 }

@@ -25,7 +25,7 @@ public class ThreadDAOImp implements ThreadDAO {
 
     @Override
     public void insertThread(ThreadInfo threadInfo) {
-        mDB.execSQL("INSERT INTO thread_info(thread_id, url, start, end, finished) VALUES(?,?,?,?,?)" ,
+        mDB.execSQL("INSERT INTO thread_info (thread_id, url, start, end, finished) VALUES(?,?,?,?,?)" ,
                 new Object[]{
                 threadInfo.getId(),
                 threadInfo.getUrl(),
@@ -36,16 +36,16 @@ public class ThreadDAOImp implements ThreadDAO {
     }
 
     @Override
-    public void deleteThread(String url, int thread_id) {
+    public void deleteThread(ThreadInfo threadInfo) {
         mDB.execSQL("DELETE From thread_info WHERE thread_id = ? AND url = ?",
-                new Object[]{thread_id, url});
+                new Object[]{threadInfo.getId(), threadInfo.getUrl()});
         mDB.close();
     }
 
     @Override
-    public void updateThreat(String url, int thread_id, int finished) {
+    public void updateThreat(ThreadInfo threadInfo) {
         mDB.execSQL("UPDATE thread_info SET finished = ? WHERE url = ? AND thread_id = ?",
-                new Object[]{finished, url, thread_id});
+                new Object[]{threadInfo.getFinished(), threadInfo.getUrl(), threadInfo.getId()});
         mDB.close();
     }
 
@@ -73,10 +73,13 @@ public class ThreadDAOImp implements ThreadDAO {
     }
 
     @Override
-    public boolean isExists(String url, int thread_id) {
+    public boolean isExists(ThreadInfo threadInfo) {
 
-        Cursor cursor = mDB.rawQuery("SELECT * FROM thread_info WHERE url = ? AND thread_id = ? ",
-                new String[]{url, String.valueOf(thread_id)});
+        Cursor cursor = mDB.rawQuery("SELECT * FROM thread_info WHERE url = ? ",
+                new String[]{threadInfo.getUrl()});
+
+//        Cursor cursor = mDB.rawQuery("SELECT * FROM thread_info WHERE url = ? AND thread_id = ? ",
+//                new String[]{threadInfo.getUrl(), "0"});
 
         boolean exist = cursor.moveToNext();
 
