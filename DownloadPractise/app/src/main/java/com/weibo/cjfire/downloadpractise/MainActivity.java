@@ -13,10 +13,10 @@ import com.weibo.cjfire.downloadpractise.services.DownloadService;
 
 public class MainActivity extends AppCompatActivity {
 
-    private TextView mTvFileName = null;
-    private ProgressBar mPbProgress = null;
-    private Button mBtStop = null;
-    private Button mBtStart = null;
+    private TextView mTvFileName;
+    private ProgressBar mPbProgress;
+    private Button mBtStop;
+    private Button mBtStart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
         mBtStop = (Button) findViewById(R.id.stop);
         mBtStart = (Button) findViewById(R.id.download);
 
-        final FileInfo fileInfo = new FileInfo(0,, "QQ.apk", "https://qd.myapp.com/myapp/qqteam/AndroidQQ/mobileqq_android.apk", 0, 0);
+        final FileInfo fileInfo = new FileInfo(0, "https://qd.myapp.com/myapp/qqteam/AndroidQQ/mobileqq_android.apk", "QQ.apk", 0, 0);
 
         mBtStart.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -1,10 +1,12 @@
 package com.weibo.cjfire.downloadpractise.entities;
 
+import java.io.Serializable;
+
 /**
  * Created by cjfire on 16/10/22.
  */
 
-public class FileInfo {
+public class FileInfo implements Serializable {
 
     private int id;
     private String url;
