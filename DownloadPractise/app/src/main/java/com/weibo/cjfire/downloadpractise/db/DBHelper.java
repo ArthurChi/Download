@@ -12,7 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "download.db";
-    private static int VERSION = "1";
+    private static int VERSION = 1;
     private static final String SQL_CREATE = "create table if exists thread_info(id integer primary key autoincrement, " +
     "thread_id integer, url text, start integer, end integer, finishe integer)";
     private static final String SQL_DROP = "drop table if exists thread_info";

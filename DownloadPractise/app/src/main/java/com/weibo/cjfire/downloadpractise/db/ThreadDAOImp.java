@@ -25,19 +25,27 @@ public class ThreadDAOImp implements ThreadDAO {
 
     @Override
     public void insertThread(ThreadInfo threadInfo) {
-        mDB.execSQL("INSERT INTO thread_info(thread_id, url, start, end, finished) VALUES(?,?,?,?,?)", new Object[](threadInfo.getId(), threadInfo.getUrl(), threadInfo.getStart(), threadInfo.getEnd(), threadInfo.getFinished()));
+        mDB.execSQL("INSERT INTO thread_info(thread_id, url, start, end, finished) VALUES(?,?,?,?,?)" ,
+                new Object[]{
+                threadInfo.getId(),
+                threadInfo.getUrl(),
+                threadInfo.getStart(),
+                threadInfo.getEnd(),
+                threadInfo.getFinished()});
         mDB.close();
     }
 
     @Override
     public void deleteThread(String url, int thread_id) {
-        mDB.execSQL("DELETE From thread_info WHERE thread_id = ? AND url = ?", new Object[](thread_id, url));
+        mDB.execSQL("DELETE From thread_info WHERE thread_id = ? AND url = ?",
+                new Object[]{thread_id, url});
         mDB.close();
     }
 
     @Override
     public void updateThreat(String url, int thread_id, int finished) {
-        mDB.execSQL("UPDATE thread_info SET finished = ? WHERE url = ? AND thread_id = ?", new Object[](finished, url, thread_id));
+        mDB.execSQL("UPDATE thread_info SET finished = ? WHERE url = ? AND thread_id = ?",
+                new Object[]{finished, url, thread_id});
         mDB.close();
     }
 
@@ -45,7 +53,8 @@ public class ThreadDAOImp implements ThreadDAO {
     public List<ThreadInfo> getThread(String url) {
 
         List<ThreadInfo> list = new ArrayList<>();
-        Cursor cursor = mDB.rawQuery("SELECT * FROM thread_info WHERE url = ?", new String[](url))
+        Cursor cursor = mDB.rawQuery("SELECT * FROM thread_info WHERE url = ?",
+                new String[]{url});
 
         while (cursor.moveToNext()) {
 
@@ -66,7 +75,8 @@ public class ThreadDAOImp implements ThreadDAO {
     @Override
     public boolean isExists(String url, int thread_id) {
 
-        Cursor cursor = mDB.rawQuery("SELECT * FROM thread_info WHERE url = ? AND thread_id = ?", new Object[](url, thread_id))
+        Cursor cursor = mDB.rawQuery("SELECT * FROM thread_info WHERE url = ? AND thread_id = ? ",
+                new String[]{url, String.valueOf(thread_id)});
 
         boolean exist = cursor.moveToNext();
 
