@@ -13,6 +13,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.weibo.cjfire.downloadpractise.entities.FileInfo;
+import com.weibo.cjfire.downloadpractise.net.ProgressHelper;
+import com.weibo.cjfire.downloadpractise.net.ProgressResponseListener;
+import com.weibo.cjfire.downloadpractise.net.UIProgressResponseListener;
 import com.weibo.cjfire.downloadpractise.services.DownloadService;
 
 import java.io.IOException;
@@ -29,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar mPbProgress;
     private Button mBtStop;
     private Button mBtStart;
+    private OkHttpClient mClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
         mBtStart = (Button) findViewById(R.id.download);
         mPbProgress.setMax(100);
 
+        mClient = new OkHttpClient.Builder().build();
+
         IntentFilter filter = new IntentFilter();
         filter.addAction(DownloadService.ACTION_UPDATE);
         registerReceiver(mReceiver, filter);
@@ -51,10 +57,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                Intent intent = new Intent(MainActivity.this, DownloadService.class);
-                intent.setAction(DownloadService.ACTION_START);
-                intent.putExtra("fileInfo", fileInfo);
-                startService(intent);
+                download();
+//                Intent intent = new Intent(MainActivity.this, DownloadService.class);
+//                intent.setAction(DownloadService.ACTION_START);
+//                intent.putExtra("fileInfo", fileInfo);
+//                startService(intent);
             }
         });
 
@@ -86,4 +93,58 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+
+    private void download() {
+        //这个是非ui线程回调，不可直接操作UI
+        final ProgressResponseListener progressResponseListener = new ProgressResponseListener() {
+            @Override
+            public void onResponseProgress(long bytesRead, long contentLength, boolean done) {
+                Log.e("TAG", "bytesRead:" + bytesRead);
+                Log.e("TAG", "contentLength:" + contentLength);
+                Log.e("TAG", "done:" + done);
+                if (contentLength != -1) {
+                    //长度未知的情况下回返回-1
+                    Log.e("TAG", (100 * bytesRead) / contentLength + "% done");
+                }
+                Log.e("TAG", "================================");
+            }
+        };
+
+
+        //这个是ui线程回调，可直接操作UI
+        final UIProgressResponseListener uiProgressResponseListener = new UIProgressResponseListener() {
+            @Override
+            public void onUIResponseProgress(long bytesRead, long contentLength, boolean done) {
+                Log.e("TAG", "bytesRead:" + bytesRead);
+                Log.e("TAG", "contentLength:" + contentLength);
+                Log.e("TAG", "done:" + done);
+                if (contentLength != -1) {
+                    //长度未知的情况下回返回-1
+                    Log.e("TAG", (100 * bytesRead) / contentLength + "% done");
+                }
+                Log.e("TAG", "================================");
+                //ui层回调
+                mPbProgress.setProgress((int) ((100 * bytesRead) / contentLength));
+                //Toast.makeText(getApplicationContext(), bytesRead + " " + contentLength + " " + done, Toast.LENGTH_LONG).show();
+            }
+        };
+
+        //构造请求
+        final Request request1 = new Request.Builder()
+                .url("http://192.168.1.4/DownloadFile")
+                .build();
+
+        //包装Response使其支持进度回调
+        ProgressHelper.addProgressResponseListener(mClient, uiProgressResponseListener).newCall(request1).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e("TAG", "error ", e);
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.e("TAG", response.body().string());
+            }
+        });
+    }
 }

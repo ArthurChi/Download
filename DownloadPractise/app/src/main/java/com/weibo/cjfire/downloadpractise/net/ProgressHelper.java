@@ -15,15 +15,15 @@ public class ProgressHelper {
 
     public static OkHttpClient addProgressResponseListener(OkHttpClient client, final ProgressResponseListener progressResponseListener) {
 
-        client.networkInterceptors().add(new Interceptor() {
+        Interceptor interceptor = new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
                 Response originalResponse = chain.proceed(chain.request());
                 return originalResponse.newBuilder().body(new ProgressResponseBody(originalResponse.body(), progressResponseListener)).build();
             }
-        });
+        };
 
-        return client;
+        return client.newBuilder().addInterceptor(interceptor).build();
     }
 
     public static ProgressRequestBody addProgressRequestListener(RequestBody requestBody, ProgressRequestListener progressRequestListener) {
