@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -36,11 +37,12 @@ public class MainActivity extends AppCompatActivity {
         filter.addAction(DownloadService.ACTION_UPDATE);
         registerReceiver(mReceiver, filter);
 
-        final FileInfo fileInfo = new FileInfo(0, "https://qd.myapp.com/myapp/qqteam/AndroidQQ/mobileqq_android.apk", "QQ.apk", 0, 0);
+        final FileInfo fileInfo = new FileInfo(0, "http://www.imooc.com/mobile/appdown", "moke.apk", 0, 0);
 
         mBtStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 Intent intent = new Intent(MainActivity.this, DownloadService.class);
                 intent.setAction(DownloadService.ACTION_START);
                 intent.putExtra("fileInfo", fileInfo);
@@ -71,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (DownloadService.ACTION_UPDATE.equals(intent.getAction())) {
                 int finished = intent.getIntExtra("finished", 0);
+                Log.i("test", String.valueOf(finished));
                 mPbProgress.setProgress(finished);
             }
         }

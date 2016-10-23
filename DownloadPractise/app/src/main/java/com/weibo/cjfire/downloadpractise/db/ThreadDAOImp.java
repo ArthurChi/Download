@@ -16,44 +16,46 @@ import java.util.List;
 public class ThreadDAOImp implements ThreadDAO {
 
     private DBHelper mHelper = null;
-    private SQLiteDatabase mDB = null;
 
     public ThreadDAOImp(Context context) {
         mHelper = new DBHelper(context);
-        mDB = mHelper.getWritableDatabase();
     }
 
     @Override
     public void insertThread(ThreadInfo threadInfo) {
-        mDB.execSQL("INSERT INTO thread_info (thread_id, url, start, end, finished) VALUES(?,?,?,?,?)" ,
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        db.execSQL("INSERT INTO thread_info (thread_id, url, start, end, finished) VALUES(?,?,?,?,?)" ,
                 new Object[]{
                 threadInfo.getId(),
                 threadInfo.getUrl(),
                 threadInfo.getStart(),
                 threadInfo.getEnd(),
                 threadInfo.getFinished()});
-        mDB.close();
+        db.close();
     }
 
     @Override
     public void deleteThread(ThreadInfo threadInfo) {
-        mDB.execSQL("DELETE From thread_info WHERE thread_id = ? AND url = ?",
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        db.execSQL("DELETE From thread_info WHERE thread_id = ? AND url = ?",
                 new Object[]{threadInfo.getId(), threadInfo.getUrl()});
-        mDB.close();
+        db.close();
     }
 
     @Override
     public void updateThreat(ThreadInfo threadInfo) {
-        mDB.execSQL("UPDATE thread_info SET finished = ? WHERE url = ? AND thread_id = ?",
+        SQLiteDatabase db = mHelper.getWritableDatabase();
+        db.execSQL("UPDATE thread_info SET finished = ? WHERE url = ? AND thread_id = ?",
                 new Object[]{threadInfo.getFinished(), threadInfo.getUrl(), threadInfo.getId()});
-        mDB.close();
+        db.close();
     }
 
     @Override
     public List<ThreadInfo> getThread(String url) {
 
+        SQLiteDatabase db = mHelper.getReadableDatabase();
         List<ThreadInfo> list = new ArrayList<>();
-        Cursor cursor = mDB.rawQuery("SELECT * FROM thread_info WHERE url = ?",
+        Cursor cursor = db.rawQuery("SELECT * FROM thread_info WHERE url = ?",
                 new String[]{url});
 
         while (cursor.moveToNext()) {
@@ -68,23 +70,22 @@ public class ThreadDAOImp implements ThreadDAO {
         }
 
         cursor.close();
-        mDB.close();
+        db.close();
         return list;
     }
 
     @Override
     public boolean isExists(ThreadInfo threadInfo) {
 
-        Cursor cursor = mDB.rawQuery("SELECT * FROM thread_info WHERE url = ? ",
-                new String[]{threadInfo.getUrl()});
+        SQLiteDatabase db = mHelper.getReadableDatabase();
 
-//        Cursor cursor = mDB.rawQuery("SELECT * FROM thread_info WHERE url = ? AND thread_id = ? ",
-//                new String[]{threadInfo.getUrl(), "0"});
+        Cursor cursor = db.rawQuery("SELECT * FROM thread_info WHERE url = ? AND thread_id = ? ",
+                new String[]{threadInfo.getUrl(), String.valueOf(threadInfo.getId())});
 
         boolean exist = cursor.moveToNext();
 
         cursor.close();
-        mDB.close();
+        db.close();
 
         return exist;
     }

@@ -2,6 +2,7 @@ package com.weibo.cjfire.downloadpractise.services;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import com.weibo.cjfire.downloadpractise.db.ThreadDAO;
 import com.weibo.cjfire.downloadpractise.db.ThreadDAOImp;
@@ -70,7 +71,7 @@ public class DownloadTask {
             try {
                 URL url = new URL(mThreadInfo.getUrl());
                 conn = (HttpURLConnection)url.openConnection();
-                conn.setConnectTimeout(3000);
+                conn.setConnectTimeout(30000);
                 conn.setRequestMethod("GET");
 
                 int start = mThreadInfo.getStart() + mThreadInfo.getFinished();
@@ -83,7 +84,9 @@ public class DownloadTask {
                 Intent intent = new Intent(DownloadService.ACTION_UPDATE);
                 mFinished += mThreadInfo.getFinished();
                 // start to download
-                if (conn.getResponseCode() == 206) {
+                Log.i("test", String.valueOf(conn.getResponseCode()));
+
+                if (conn.getResponseCode() < 300) {
 
                     input = conn.getInputStream();
                     byte[] buffer = new byte[1024];
@@ -96,6 +99,7 @@ public class DownloadTask {
                             time = System.currentTimeMillis();
                             raf.write(buffer, 0, len);
                             mFinished += len;
+                            Log.i("test", String.valueOf(mFinished) + "~~~~~" + String.valueOf(mFileInfo.getLength()));
                             intent.putExtra("finished", (mFinished / mFileInfo.getLength() * 100));
                             mContext.sendBroadcast(intent);
                         }
@@ -108,6 +112,8 @@ public class DownloadTask {
                     }
 
                     mDao.deleteThread(mThreadInfo);
+                } else {
+                    Log.i("test", String.valueOf(conn.getResponseCode()));
                 }
 
             } catch (Exception e) {
@@ -115,8 +121,14 @@ public class DownloadTask {
             } finally {
                 conn.disconnect();
                 try {
-                    raf.close();
-                    input.close();
+                    if (raf != null) {
+                        raf.close();
+                    }
+
+                    if (input != null) {
+                        input.close();
+                    }
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
