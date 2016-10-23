@@ -75,7 +75,7 @@ public class DownloadTask {
                 conn.setRequestMethod("GET");
 
                 int start = mThreadInfo.getStart() + mThreadInfo.getFinished();
-                conn.setRequestProperty("Range", "bytes="+start+"="+mThreadInfo.getEnd());
+                conn.setRequestProperty("Range", "bytes="+start+"-"+mThreadInfo.getEnd());
 
                 File file = new File(DownloadService.DOWNLOAD_PATH, mFileInfo.getFileName());
                 raf = new RandomAccessFile(file, "rwd");

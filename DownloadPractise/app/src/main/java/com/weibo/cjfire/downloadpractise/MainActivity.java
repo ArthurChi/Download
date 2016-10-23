@@ -15,6 +15,14 @@ import android.widget.TextView;
 import com.weibo.cjfire.downloadpractise.entities.FileInfo;
 import com.weibo.cjfire.downloadpractise.services.DownloadService;
 
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 public class MainActivity extends AppCompatActivity {
 
     private TextView mTvFileName;
@@ -37,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         filter.addAction(DownloadService.ACTION_UPDATE);
         registerReceiver(mReceiver, filter);
 
-        final FileInfo fileInfo = new FileInfo(0, "http://www.imooc.com/mobile/appdown", "moke.apk", 0, 0);
+        final FileInfo fileInfo = new FileInfo(0, "http://192.168.1.4/DownloadFile/index.php", "moke.apk", 0, 0);
 
         mBtStart.setOnClickListener(new View.OnClickListener() {
             @Override

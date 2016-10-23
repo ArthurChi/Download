@@ -86,6 +86,8 @@ public class DownloadService extends Service {
                 conn.setRequestMethod("GET");
                 int length = -1;
 
+                Log.i("test", String.valueOf(conn.getResponseCode()));
+
                 if (conn.getResponseCode() == 200) {
 
                     length = conn.getContentLength();
@@ -112,7 +114,9 @@ public class DownloadService extends Service {
             } finally {
                 conn.disconnect();
                 try {
-                    raf.close();
+                    if (raf != null) {
+                        raf.close();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
