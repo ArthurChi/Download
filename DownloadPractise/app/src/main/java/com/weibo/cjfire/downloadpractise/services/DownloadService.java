@@ -97,7 +97,7 @@ public class DownloadService extends Service {
 
                 File dir = new File(DOWNLOAD_PATH);
 
-                if (!dir.exists()) {
+                if (!dir.exists() && dir.isDirectory()) {
                     dir.mkdir();
                 }
 

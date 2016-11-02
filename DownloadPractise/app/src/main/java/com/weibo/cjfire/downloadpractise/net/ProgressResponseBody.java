@@ -1,6 +1,12 @@
 package com.weibo.cjfire.downloadpractise.net;
 
+import com.weibo.cjfire.downloadpractise.services.DownloadService;
+
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
 
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
@@ -19,10 +25,24 @@ public class ProgressResponseBody extends ResponseBody {
     private final ResponseBody mResponseBody;
     private final ProgressResponseListener mProgressListener;
     private BufferedSource mBufferedSource;
+    private RandomAccessFile raf;
 
-    public ProgressResponseBody(ResponseBody mResponseBody, ProgressResponseListener mProgressListener) {
+    public ProgressResponseBody(ResponseBody mResponseBody, ProgressResponseListener mProgressListener) throws FileNotFoundException {
         this.mResponseBody = mResponseBody;
         this.mProgressListener = mProgressListener;
+
+        File dir = new File(DownloadService.DOWNLOAD_PATH);
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
+
+        File file = new File(dir, "file");
+        raf = new RandomAccessFile(file, "rwd");
+        try {
+            raf.setLength(129539017);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -53,6 +73,16 @@ public class ProgressResponseBody extends ResponseBody {
             public long read(Buffer sink, long byteCount) throws IOException {
 
                 long bytesRead = super.read(sink, byteCount);
+
+                InputStream input = sink.inputStream();
+
+                byte[] buffer = new byte[1024];
+                int len = -1;
+
+
+                while ((len = input.read(buffer)) != -1) {
+                    raf.write(buffer, 0, len);
+                }
 
                 totalBytesRead += bytesRead != -1 ? bytesRead : 0;
                 mProgressListener.onResponseProgress(totalBytesRead, mResponseBody.contentLength(), bytesRead == -1);
