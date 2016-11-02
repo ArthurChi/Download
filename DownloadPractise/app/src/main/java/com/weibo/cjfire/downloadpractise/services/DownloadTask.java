@@ -81,6 +81,8 @@ public class DownloadTask {
                 raf = new RandomAccessFile(file, "rwd");
                 raf.seek(start);
 
+                Log.i("test", String.valueOf(start));
+
                 Intent intent = new Intent(DownloadService.ACTION_UPDATE);
                 mFinished += mThreadInfo.getFinished();
                 // start to download
@@ -95,12 +97,12 @@ public class DownloadTask {
                     long time = System.currentTimeMillis();
                     while ((len = input.read(buffer)) != -1) {
 
-                        if (System.currentTimeMillis() - time > 500) {
-                            time = System.currentTimeMillis();
                             raf.write(buffer, 0, len);
                             mFinished += len;
                             Log.i("test", String.valueOf(mFinished) + "~~~~~" + String.valueOf(mFileInfo.getLength()));
-                            intent.putExtra("finished", (mFinished / mFileInfo.getLength() * 100));
+                        if (System.currentTimeMillis() - time > 500) {
+                            time = System.currentTimeMillis();
+                            intent.putExtra("finished", (int)((float)mFinished / mFileInfo.getLength() * 100));
                             mContext.sendBroadcast(intent);
                         }
 
