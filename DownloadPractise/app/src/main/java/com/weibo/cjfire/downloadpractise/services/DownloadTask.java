@@ -64,7 +64,7 @@ public class DownloadTask {
             RandomAccessFile raf = null;
             InputStream input = null;
 
-            if (!mDao.isExists(mThreadInfo)) {
+            if (!mDao.isExists(mThreadInfo.getId(), mThreadInfo.getUrl())) {
                 mDao.insertThread(mThreadInfo);
             }
 
@@ -111,7 +111,7 @@ public class DownloadTask {
                         }
                     }
 
-                    mDao.deleteThread(mThreadInfo);
+                    mDao.deleteThread(mThreadInfo.getId(), mThreadInfo.getUrl());
                 } else {
                     Log.i("test", String.valueOf(conn.getResponseCode()));
                 }

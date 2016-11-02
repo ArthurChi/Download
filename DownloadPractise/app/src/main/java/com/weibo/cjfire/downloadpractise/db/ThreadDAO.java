@@ -10,9 +10,9 @@ import java.util.List;
 
 public interface ThreadDAO {
 
-    public void insertThread(ThreadInfo threadInfo);
-    public void deleteThread(ThreadInfo threadInfo);
-    public void updateThreat(ThreadInfo threadInfo);
+    public Boolean insertThread(ThreadInfo threadInfo);
+    public Boolean deleteThread(int id, String url);
+    public Boolean updateThreat(ThreadInfo threadInfo);
     public List<ThreadInfo>getThread(String url);
-    public boolean isExists(ThreadInfo threadInfo);
+    public Boolean isExists(int id, String url);
 }

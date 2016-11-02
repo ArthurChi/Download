@@ -1,5 +1,6 @@
 package com.weibo.cjfire.downloadpractise.db;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -15,6 +16,7 @@ import java.util.List;
 
 public class ThreadDAOImp implements ThreadDAO {
 
+    private static final String TABLE_NAME = "thread_info";
     private DBHelper mHelper = null;
 
     public ThreadDAOImp(Context context) {
@@ -22,32 +24,49 @@ public class ThreadDAOImp implements ThreadDAO {
     }
 
     @Override
-    public void insertThread(ThreadInfo threadInfo) {
+    public Boolean insertThread(ThreadInfo threadInfo) {
+
+        long result = -1;
+
+        ContentValues values = new ContentValues();
+
+        values.put("thread_id", threadInfo.getId());
+        values.put("url", threadInfo.getUrl());
+        values.put("start", threadInfo.getStart());
+        values.put("end", threadInfo.getEnd());
+        values.put("finished", threadInfo.getFinished());
+
         SQLiteDatabase db = mHelper.getWritableDatabase();
-        db.execSQL("INSERT INTO thread_info (thread_id, url, start, end, finished) VALUES(?,?,?,?,?)" ,
-                new Object[]{
-                threadInfo.getId(),
-                threadInfo.getUrl(),
-                threadInfo.getStart(),
-                threadInfo.getEnd(),
-                threadInfo.getFinished()});
+        result = db.insert(TABLE_NAME, null, values);
         db.close();
+
+        return result == -1 ? false : true;
     }
 
     @Override
-    public void deleteThread(ThreadInfo threadInfo) {
+    public Boolean deleteThread(int id, String url) {
+
+        int affectRows = 0;
         SQLiteDatabase db = mHelper.getWritableDatabase();
-        db.execSQL("DELETE From thread_info WHERE thread_id = ? AND url = ?",
-                new Object[]{threadInfo.getId(), threadInfo.getUrl()});
+        affectRows = db.delete(TABLE_NAME, "thread_id = ? AND url = ?", new String[] {String.valueOf(id), url} );
         db.close();
+
+        return affectRows == 0 ? false : true;
     }
 
     @Override
-    public void updateThreat(ThreadInfo threadInfo) {
+    public Boolean updateThreat(ThreadInfo threadInfo) {
+
+        int affectRows = 0;
         SQLiteDatabase db = mHelper.getWritableDatabase();
-        db.execSQL("UPDATE thread_info SET finished = ? WHERE url = ? AND thread_id = ?",
-                new Object[]{threadInfo.getFinished(), threadInfo.getUrl(), threadInfo.getId()});
+
+        ContentValues values = new ContentValues();
+        values.put("finished", threadInfo.getFinished());
+
+        affectRows = db.update(TABLE_NAME, values, "url = ? AND thread_id = ?", new String[] {threadInfo.getUrl(), String.valueOf(threadInfo.getId())});
         db.close();
+
+        return affectRows == 0 ? false : true;
     }
 
     @Override
@@ -55,8 +74,7 @@ public class ThreadDAOImp implements ThreadDAO {
 
         SQLiteDatabase db = mHelper.getReadableDatabase();
         List<ThreadInfo> list = new ArrayList<>();
-        Cursor cursor = db.rawQuery("SELECT * FROM thread_info WHERE url = ?",
-                new String[]{url});
+        Cursor cursor = db.query(TABLE_NAME, null, null, null, null, null, null);
 
         while (cursor.moveToNext()) {
 
@@ -75,12 +93,11 @@ public class ThreadDAOImp implements ThreadDAO {
     }
 
     @Override
-    public boolean isExists(ThreadInfo threadInfo) {
+    public Boolean isExists(int id, String url) {
 
         SQLiteDatabase db = mHelper.getReadableDatabase();
 
-        Cursor cursor = db.rawQuery("SELECT * FROM thread_info WHERE url = ? AND thread_id = ? ",
-                new String[]{threadInfo.getUrl(), String.valueOf(threadInfo.getId())});
+        Cursor cursor = db.query(TABLE_NAME, null, "url = ? AND thread_id = ?", new String[] {url, String.valueOf(id)}, null, null, null);
 
         boolean exist = cursor.moveToNext();
 
