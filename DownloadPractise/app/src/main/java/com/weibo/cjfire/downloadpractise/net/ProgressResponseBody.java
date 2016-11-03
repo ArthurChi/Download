@@ -7,6 +7,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
@@ -26,6 +28,8 @@ public class ProgressResponseBody extends ResponseBody {
     private final ProgressResponseListener mProgressListener;
     private BufferedSource mBufferedSource;
     private RandomAccessFile raf;
+    private FileChannel mChannel;
+    private MappedByteBuffer mappedByteBuffer;
 
     public ProgressResponseBody(ResponseBody mResponseBody, ProgressResponseListener mProgressListener) throws FileNotFoundException {
         this.mResponseBody = mResponseBody;
@@ -39,7 +43,9 @@ public class ProgressResponseBody extends ResponseBody {
         File file = new File(dir, "file");
         raf = new RandomAccessFile(file, "rwd");
         try {
-            raf.setLength(129539017);
+            raf.setLength(mResponseBody.contentLength());
+            mChannel = raf.getChannel();
+            mappedByteBuffer = mChannel.map(FileChannel.MapMode.READ_WRITE, 0, mResponseBody.contentLength());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -79,15 +85,17 @@ public class ProgressResponseBody extends ResponseBody {
                 byte[] buffer = new byte[1024];
                 int len = -1;
 
-
                 while ((len = input.read(buffer)) != -1) {
-                    raf.write(buffer, 0, len);
+                    mappedByteBuffer.put(buffer, 0 ,len);
                 }
+
+                input.close();
+                mChannel.close();
 
                 totalBytesRead += bytesRead != -1 ? bytesRead : 0;
                 mProgressListener.onResponseProgress(totalBytesRead, mResponseBody.contentLength(), bytesRead == -1);
 
-                return super.read(sink, byteCount);
+                return bytesRead;
             }
         };
     }

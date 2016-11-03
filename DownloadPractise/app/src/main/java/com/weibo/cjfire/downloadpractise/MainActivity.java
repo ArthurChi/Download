@@ -4,8 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         filter.addAction(DownloadService.ACTION_UPDATE);
         registerReceiver(mReceiver, filter);
 
-        final FileInfo fileInfo = new FileInfo(0, "http://192.168.1.4/DownloadFile/index.php", "moke.apk", 0, 0);
+        final FileInfo fileInfo = new FileInfo(0, "http://192.168.8.112/DownloadFile/index.php", "moke.rar", 0, 0);
 
         mBtStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
 
         //构造请求
         final Request request1 = new Request.Builder()
-                .url("http://192.168.1.4/DownloadFile")
+                .url("http://192.168.8.112/DownloadFile/index.php").addHeader("Range", "0-")
                 .build();
 
         //包装Response使其支持进度回调

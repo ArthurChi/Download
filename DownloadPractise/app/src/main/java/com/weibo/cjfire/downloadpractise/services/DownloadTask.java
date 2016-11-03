@@ -16,6 +16,8 @@ import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.List;
 
 /**
@@ -29,6 +31,7 @@ public class DownloadTask {
     private ThreadDAO mDao = null;
     private int mFinished = 0;
     boolean isPause = false;
+    private FileChannel channelOut;
 
     public DownloadTask(Context mContext, FileInfo mFileInfo) {
         this.mContext = mContext;
@@ -79,9 +82,9 @@ public class DownloadTask {
 
                 File file = new File(DownloadService.DOWNLOAD_PATH, mFileInfo.getFileName());
                 raf = new RandomAccessFile(file, "rwd");
-                raf.seek(start);
-
-                Log.i("test", String.valueOf(start));
+//                raf.seek(start);
+                channelOut = raf.getChannel();
+                MappedByteBuffer mappedByteBuffer = channelOut.map(FileChannel.MapMode.READ_WRITE, start, mFileInfo.getLength());
 
                 Intent intent = new Intent(DownloadService.ACTION_UPDATE);
                 mFinished += mThreadInfo.getFinished();
@@ -96,11 +99,10 @@ public class DownloadTask {
 
                     long time = System.currentTimeMillis();
                     while ((len = input.read(buffer)) != -1) {
-
-                            raf.write(buffer, 0, len);
+                            mappedByteBuffer.put(buffer, 0 ,len);
                             mFinished += len;
                             Log.i("test", String.valueOf(mFinished) + "~~~~~" + String.valueOf(mFileInfo.getLength()));
-                        if (System.currentTimeMillis() - time > 500) {
+                        if (System.currentTimeMillis() - time > 500 || mFinished == mFileInfo.getLength()) {
                             time = System.currentTimeMillis();
                             intent.putExtra("finished", (int)((float)mFinished / mFileInfo.getLength() * 100));
                             mContext.sendBroadcast(intent);
@@ -123,6 +125,11 @@ public class DownloadTask {
             } finally {
                 conn.disconnect();
                 try {
+
+                    if (channelOut != null) {
+                        channelOut.close();
+                    }
+
                     if (raf != null) {
                         raf.close();
                     }
